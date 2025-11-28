@@ -132,10 +132,16 @@ Deploy to your preferred platform (GCP Cloud Run, Heroku, etc.) and use the prod
 - Verify `SLACK_SIGNING_SECRET` in your `.env` matches the one in Slack
 - Make sure you're using the correct signing secret (not the client secret)
 
-### "Failed to check calendar" error
-- Verify your Google Calendar credentials are set up correctly
-- Make sure the service account has access to the calendar
-- Check `GCAL_CALENDAR_ID` in your `.env`
+### 3. "Calendar not configured"
+- Make sure you have set up OAuth correctly (see `OAUTH_SETUP.md`)
+- Check if `oauth_credentials.json` exists in the root directory
+- Check the server logs for specific errors
+
+## Next Steps
+
+- Set up Google Calendar OAuth (see `OAUTH_SETUP.md`)
+- Run the server locally with `make run`
+- Test the commands in Slack
 
 ## Complete .env Example
 
@@ -143,13 +149,10 @@ Deploy to your preferred platform (GCP Cloud Run, Heroku, etc.) and use the prod
 SLACK_SIGNING_SECRET=abc123def456...
 SLACK_BOT_TOKEN=xoxb-123456789...
 GCAL_CALENDAR_ID=c_e2461e84e3a7f5dce6fa0d24a2e8f7c809a9aea23843ad3c1798e17dec4c43a0@group.calendar.google.com
-GOOGLE_APPLICATION_CREDENTIALS=credentials.json
 DEFAULT_TIMEZONE=America/New_York
 PORT=8080
-```
 
 ## Next Steps
 
-- Set up Google Calendar service account (see `GOOGLE_SETUP.md`)
 - Configure your production deployment
 - Add monitoring and logging

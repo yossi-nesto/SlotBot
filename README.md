@@ -4,22 +4,23 @@ Environment Booking Bot for Slack, integrated with Google Calendar.
 
 ## Setup
 
-1.  **Google Calendar**:
-    -   Create a Service Account in Google Cloud Console.
-    -   Download the JSON key and save it as `credentials.json`.
-    -   Share your target Google Calendar with the Service Account email (Make changes to events).
-    -   Get the Calendar ID (e.g., `primary` or `c_xxxxxxxx@group.calendar.google.com`).
-
-2.  **Slack App**:
+1.  **Slack App**:
     -   Create a new Slack App.
     -   Enable **Slash Commands**:
         -   `/env-book`: Request URL `https://your-domain.com/slack/book`
         -   `/env-bookings`: Request URL `https://your-domain.com/slack/bookings`
+        -   `/env-next`: Request URL `https://your-domain.com/slack/next`
     -   Install App to Workspace.
     -   Copy `Signing Secret` and `Bot User OAuth Token`.
 
+2.  **Google Calendar (OAuth)**:
+    -   Follow instructions in `OAUTH_SETUP.md`.
+    -   Place `oauth_credentials.json` in the project root.
+
 3.  **Environment Variables**:
     -   Copy `.env.example` to `.env` and fill in the values.
+    -   `SLACK_SIGNING_SECRET` & `SLACK_BOT_TOKEN`: From Slack App.
+    -   `GCAL_CALENDAR_ID`: Your target calendar ID (or "primary").
 
 ## Running Locally
 

@@ -104,6 +104,12 @@ func (h *Handler) HandleBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Check if calendar client is available
+	if h.calClient == nil {
+		respond(w, "❌ Calendar not configured. Please set up Google Calendar credentials (see OAUTH_SETUP.md)")
+		return
+	}
+
 	// Check conflicts
 	// We need to fetch events around the booking time
 	// Let's fetch -1 day to +1 day to be safe, or just the booking range
@@ -161,6 +167,12 @@ func (h *Handler) HandleNextSlot(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Check if calendar client is available
+	if h.calClient == nil {
+		respond(w, "❌ Calendar not configured. Please set up Google Calendar credentials (see OAUTH_SETUP.md)")
+		return
+	}
+
 	// Fetch events for next 7 days
 	now := time.Now()
 	events, err := h.calClient.ListEvents(r.Context(), now, now.Add(7*24*time.Hour))
@@ -176,8 +188,73 @@ func (h *Handler) HandleNextSlot(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) HandleList(w http.ResponseWriter, r *http.Request) {
-	// TODO: Implement list
-	respond(w, "List not implemented yet")
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+
+	text := r.FormValue("text")
+	args := strings.Fields(text)
+
+	// Optional env filter
+	envFilter := ""
+	if len(args) > 0 {
+		envFilter = strings.ToLower(args[0])
+	}
+
+	// Check if calendar client is available
+	if h.calClient == nil {
+		respond(w, "❌ Calendar not configured. Please set up Google Calendar credentials (see OAUTH_SETUP.md)")
+		return
+	}
+
+	// Fetch today's events
+	now := time.Now()
+	startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	endOfDay := startOfDay.Add(24 * time.Hour)
+
+	events, err := h.calClient.ListEvents(r.Context(), startOfDay, endOfDay)
+	if err != nil {
+		slog.Error("Failed to list calendar events", "error", err)
+		respond(w, "❌ Failed to check calendar")
+		return
+	}
+
+	if len(events) == 0 {
+		respond(w, "📅 No bookings for today")
+		return
+	}
+
+	// Filter by env if specified
+	var filteredEvents []domain.Event
+	for _, event := range events {
+		if envFilter == "" || strings.EqualFold(event.Env, envFilter) {
+			filteredEvents = append(filteredEvents, event)
+		}
+	}
+
+	if len(filteredEvents) == 0 {
+		if envFilter != "" {
+			respond(w, fmt.Sprintf("📅 No bookings for %s today", envFilter))
+		} else {
+			respond(w, "📅 No bookings for today")
+		}
+		return
+	}
+
+	// Build response
+	var response strings.Builder
+	response.WriteString(fmt.Sprintf("📅 Bookings for today (%d):\n\n", len(filteredEvents)))
+
+	for _, event := range filteredEvents {
+		response.WriteString(fmt.Sprintf("• %s | %s\n", event.Env, event.Service))
+		response.WriteString(fmt.Sprintf("  %s - %s\n",
+			event.StartTime.Format("15:04"),
+			event.EndTime.Format("15:04")))
+		response.WriteString(fmt.Sprintf("  %s\n\n", event.Title))
+	}
+
+	respond(w, response.String())
 }
 
 func respond(w http.ResponseWriter, message string) {

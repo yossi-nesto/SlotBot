@@ -9,10 +9,9 @@ services:
       - SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET}
       - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
       - GCAL_CALENDAR_ID=${GCAL_CALENDAR_ID}
-      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
       - DEFAULT_TIMEZONE=${DEFAULT_TIMEZONE:-America/New_York}
       - PORT=8080
     volumes:
-      # Mount your Google credentials file
-      - ./credentials.json:/app/credentials.json:ro
+      - ./oauth_credentials.json:/app/oauth_credentials.json
+      - ./token.json:/app/token.json
     restart: unless-stopped

@@ -8,17 +8,17 @@ features:
     always_online: true
   slash_commands:
     - command: /env-book
-      url: https://YOUR_DOMAIN/slack/book
+      url: https://dc4400de9d9f.ngrok-free.app/slack/book
       description: Book an environment
       usage_hint: <env> <service> <jira> [start] [duration]
       should_escape: false
     - command: /env-next
-      url: https://YOUR_DOMAIN/slack/next
+      url: https://dc4400de9d9f.ngrok-free.app/slack/next
       description: Find next available slot
       usage_hint: <env> <service> [duration]
       should_escape: false
     - command: /env-bookings
-      url: https://YOUR_DOMAIN/slack/bookings
+      url: https://dc4400de9d9f.ngrok-free.app/slack/bookings
       description: List current bookings
       usage_hint: "[env]"
       should_escape: false
@@ -27,6 +27,7 @@ oauth_config:
     bot:
       - commands
       - chat:write
+      - users:read
 settings:
   org_deploy_enabled: false
   socket_mode_enabled: false

@@ -30,3 +30,5 @@ slotbot
 
 # Google credentials (IMPORTANT: never commit this!)
 credentials.json
+oauth_credentials.json
+token.json

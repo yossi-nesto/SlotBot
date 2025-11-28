@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/joho/godotenv"
 	"github.com/lmittmann/tint"
 	"github.com/yossigruner/SlotBot/internal/calendar"
 	"github.com/yossigruner/SlotBot/internal/config"
@@ -19,6 +20,11 @@ import (
 )
 
 func main() {
+	// Load .env file
+	if err := godotenv.Load(); err != nil {
+		slog.Warn("No .env file found, using environment variables")
+	}
+
 	// Setup structured logging (Tint for color)
 	logger := slog.New(tint.NewHandler(os.Stdout, &tint.Options{
 		Level:      slog.LevelDebug,
@@ -41,7 +47,12 @@ func run() error {
 	ctx := context.Background()
 	calClient, err := calendar.NewClient(ctx, cfg)
 	if err != nil {
-		return fmt.Errorf("failed to create calendar client: %w", err)
+		slog.Warn("Failed to create calendar client - calendar features will not work", "error", err)
+		slog.Warn("To enable calendar features, follow OAUTH_SETUP.md to configure credentials")
+		// Continue without calendar client for now
+		calClient = nil
+	} else {
+		slog.Info("Calendar client initialized successfully")
 	}
 
 	slackHandler := slack.NewHandler(calClient)

@@ -3,6 +3,8 @@ package calendar
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"os"
 	"strings"
 	"time"
 
@@ -20,12 +22,23 @@ type Client struct {
 
 func NewClient(ctx context.Context, cfg *config.Config) (*Client, error) {
 	var opts []option.ClientOption
-	if cfg.GoogleApplicationCredentials != "" {
-		if strings.HasPrefix(cfg.GoogleApplicationCredentials, "{") {
-			opts = append(opts, option.WithCredentialsJSON([]byte(cfg.GoogleApplicationCredentials)))
-		} else {
-			opts = append(opts, option.WithCredentialsFile(cfg.GoogleApplicationCredentials))
+
+	// Check if using OAuth (oauth_credentials.json exists)
+	if _, err := os.Stat("oauth_credentials.json"); err == nil {
+		slog.Info("Using OAuth authentication")
+		oauthConfig, err := getOAuthConfig("oauth_credentials.json")
+		if err != nil {
+			return nil, fmt.Errorf("failed to load OAuth config: %w", err)
 		}
+
+		client, err := getOAuthClient(oauthConfig)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get OAuth client: %w", err)
+		}
+
+		opts = append(opts, option.WithHTTPClient(client))
+	} else {
+		return nil, fmt.Errorf("oauth_credentials.json not found - see OAUTH_SETUP.md for setup instructions")
 	}
 
 	srv, err := calendar.NewService(ctx, opts...)
@@ -33,9 +46,16 @@ func NewClient(ctx context.Context, cfg *config.Config) (*Client, error) {
 		return nil, fmt.Errorf("unable to retrieve Calendar client: %w", err)
 	}
 
+	// If using OAuth and no calendar ID specified, use "primary"
+	calendarID := cfg.GoogleCalendarID
+	if calendarID == "" {
+		calendarID = "primary"
+		slog.Info("Using primary calendar")
+	}
+
 	return &Client{
 		srv:        srv,
-		calendarID: cfg.GoogleCalendarID,
+		calendarID: calendarID,
 		timezone:   cfg.DefaultTimezone,
 	}, nil
 }
