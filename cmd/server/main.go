@@ -12,14 +12,18 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/lmittmann/tint"
 	"github.com/yossigruner/SlotBot/internal/calendar"
 	"github.com/yossigruner/SlotBot/internal/config"
 	"github.com/yossigruner/SlotBot/internal/slack"
 )
 
 func main() {
-	// Setup structured logging (JSON)
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	// Setup structured logging (Tint for color)
+	logger := slog.New(tint.NewHandler(os.Stdout, &tint.Options{
+		Level:      slog.LevelDebug,
+		TimeFormat: time.TimeOnly,
+	}))
 	slog.SetDefault(logger)
 
 	if err := run(); err != nil {

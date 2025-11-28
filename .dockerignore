@@ -1,0 +1,4 @@
+# Docker
+*.log
+.env
+credentials.json

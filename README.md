@@ -37,6 +37,28 @@ Or standard Go commands:
 go run ./cmd/server
 ```
 
+## Running with Docker
+
+**Build and run:**
+```bash
+docker-compose up --build
+```
+
+**Run in background:**
+```bash
+docker-compose up -d
+```
+
+**View logs:**
+```bash
+docker-compose logs -f
+```
+
+**Stop:**
+```bash
+docker-compose down
+```
+
 ## Usage
 
 **Book an environment:**

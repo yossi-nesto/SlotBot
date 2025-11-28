@@ -1,0 +1,33 @@
+display_information:
+  name: SlotBot
+  description: Environment booking bot for managing shared testing environments
+  background_color: "#2c3e50"
+features:
+  bot_user:
+    display_name: SlotBot
+    always_online: true
+  slash_commands:
+    - command: /env-book
+      url: https://YOUR_DOMAIN/slack/book
+      description: Book an environment
+      usage_hint: <env> <service> <jira> [start] [duration]
+      should_escape: false
+    - command: /env-next
+      url: https://YOUR_DOMAIN/slack/next
+      description: Find next available slot
+      usage_hint: <env> <service> [duration]
+      should_escape: false
+    - command: /env-bookings
+      url: https://YOUR_DOMAIN/slack/bookings
+      description: List current bookings
+      usage_hint: "[env]"
+      should_escape: false
+oauth_config:
+  scopes:
+    bot:
+      - commands
+      - chat:write
+settings:
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false
