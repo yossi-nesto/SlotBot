@@ -7,20 +7,10 @@ features:
     display_name: SlotBot
     always_online: true
   slash_commands:
-    - command: /env-book
-      url: https://dc4400de9d9f.ngrok-free.app/slack/book
-      description: Book an environment
-      usage_hint: <env> <service> <jira> [start] [duration]
-      should_escape: false
-    - command: /env-next
-      url: https://dc4400de9d9f.ngrok-free.app/slack/next
-      description: Find next available slot
-      usage_hint: <env> <service> [duration]
-      should_escape: false
-    - command: /env-bookings
-      url: https://dc4400de9d9f.ngrok-free.app/slack/bookings
-      description: List current bookings
-      usage_hint: "[env]"
+    - command: /slot
+      url: https://dc4400de9d9f.ngrok-free.app/slack/slot
+      description: Manage environment bookings
+      usage_hint: book|next|list|current|open|add [args...]
       should_escape: false
 oauth_config:
   scopes:

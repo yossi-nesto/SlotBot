@@ -23,22 +23,12 @@ type Client struct {
 func NewClient(ctx context.Context, cfg *config.Config) (*Client, error) {
 	var opts []option.ClientOption
 
-	// Check if using OAuth (oauth_credentials.json exists)
-	if _, err := os.Stat("oauth_credentials.json"); err == nil {
-		slog.Info("Using OAuth authentication")
-		oauthConfig, err := getOAuthConfig("oauth_credentials.json")
-		if err != nil {
-			return nil, fmt.Errorf("failed to load OAuth config: %w", err)
-		}
-
-		client, err := getOAuthClient(oauthConfig)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get OAuth client: %w", err)
-		}
-
-		opts = append(opts, option.WithHTTPClient(client))
+	// Check if using Service Account (service-account.json exists)
+	if _, err := os.Stat("service-account.json"); err == nil {
+		slog.Info("Using service account authentication")
+		opts = append(opts, option.WithCredentialsFile("service-account.json"))
 	} else {
-		return nil, fmt.Errorf("oauth_credentials.json not found - see OAUTH_SETUP.md for setup instructions")
+		return nil, fmt.Errorf("service-account.json not found - see SERVICE_ACCOUNT_SETUP.md for setup instructions")
 	}
 
 	srv, err := calendar.NewService(ctx, opts...)

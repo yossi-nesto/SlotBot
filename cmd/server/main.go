@@ -55,7 +55,7 @@ func run() error {
 		slog.Info("Calendar client initialized successfully")
 	}
 
-	slackHandler := slack.NewHandler(calClient)
+	slackHandler := slack.NewHandler(calClient, cfg.GoogleCalendarID)
 
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
@@ -66,9 +66,8 @@ func run() error {
 	// Slack command endpoints
 	r.Route("/slack", func(r chi.Router) {
 		r.Use(slack.VerifySignature(cfg.SlackSigningSecret))
-		r.Post("/book", slackHandler.HandleBook)
-		r.Post("/next", slackHandler.HandleNextSlot)
-		r.Post("/bookings", slackHandler.HandleList)
+		// Unified command
+		r.Post("/slot", slackHandler.HandleUnified)
 	})
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
